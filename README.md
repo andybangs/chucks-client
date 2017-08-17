@@ -1,3 +1,11 @@
+# Chuck's Taplist
+
+A filterable, sortable table of what's currently on tap at <a href="http://chuckshopshop.com/">Chuck's Hop Shop</a>.
+
+<img alt="chucks-client" src="https://user-images.githubusercontent.com/8417465/29436308-bdc8a7ba-835f-11e7-813f-96bf649cfd60.png" width="240">
+
+<hr>
+
 This project was bootstrapped with [Create React App](https://github.com/facebookincubator/create-react-app).
 
 Below you will find some information on how to perform common tasks.<br>
@@ -1755,7 +1763,7 @@ If you’re using [Apache HTTP Server](https://httpd.apache.org/), you need to c
     RewriteRule ^ index.html [QSA,L]
 ```
 
-It will get copied to the `build` folder when you run `npm run build`. 
+It will get copied to the `build` folder when you run `npm run build`.
 
 If you’re using [Apache Tomcat](http://tomcat.apache.org/), you need to follow [this Stack Overflow answer](https://stackoverflow.com/a/41249464/4878474).
 
