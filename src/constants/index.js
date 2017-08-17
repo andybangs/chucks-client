@@ -29,3 +29,5 @@ export const titles = {
   chucks85th: "Chuck's 85th",
   chuckscd: "Chuck's CD"
 };
+
+export const timeRange = 1000 * 60 * 10; // ten minutes

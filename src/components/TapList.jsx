@@ -5,7 +5,15 @@ import Header from './Header';
 import FilterBar from './FilterBar';
 import TapTable from './TapTable';
 import LocationMenu from './LocationMenu';
-import { filters, filtersArr, orders, endpoints, titles } from '../constants';
+import {
+  filters,
+  filtersArr,
+  orders,
+  endpoints,
+  titles,
+  timeRange
+} from '../constants';
+import { loadState, saveState } from '../localStorage';
 
 const propTypes = {
   params: PropTypes.object.isRequired
@@ -23,45 +31,45 @@ class TapList extends React.Component {
       menuOpen: false,
       loading: false
     };
-
-    this.fetchList = this.fetchList.bind(this);
-    this.filterItem = this.filterItem.bind(this);
-    this.compareItems = this.compareItems.bind(this);
-    this.updateTitle = this.updateTitle.bind(this);
-    this.handleMenuClick = this.handleMenuClick.bind(this);
-    this.handleFilterClick = this.handleFilterClick.bind(this);
-    this.handleOrderClick = this.handleOrderClick.bind(this);
   }
 
   componentDidMount() {
-    this.fetchList(this.props.params.location);
+    this.getList(this.props.params.location);
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.fetchList(nextProps.params.location);
-  }
+  getList = location => {
+    const savedState = loadState(location);
+    console.log(savedState);
+    if (
+      !savedState ||
+      (savedState && Date.now() - savedState.lastSaved > timeRange)
+    ) {
+      this.fetchList(location);
+    } else {
+      this.setState({ data: savedState.data });
+    }
+  };
 
-  fetchList(location) {
+  fetchList = location => {
     this.setState({ loading: true });
-    fetch(new Request(endpoints[location]))
-      .then(response => {
-        console.log(response);
-        if (response.ok) {
-          response.json().then(json => {
+    fetch(endpoints[location])
+      .then(res => {
+        if (res.ok) {
+          res.json().then(json => {
             this.setState({ data: json['body-json'].data, loading: false });
+            saveState(location, json['body-json'].data);
           });
         } else {
           this.setState({ loading: false });
-          throw new Error('Network response was not ok.');
         }
       })
       .catch(error => {
         this.setState({ loading: false });
-        throw new Error(`Fetch operation failed: ${error.message}`);
+        throw new Error(error);
       });
-  }
+  };
 
-  filterItem(item) {
+  filterItem = item => {
     const { filter } = this.state;
     const itemClass = item.class.split(' ')[1];
 
@@ -74,9 +82,9 @@ class TapList extends React.Component {
       return true;
 
     return false;
-  }
+  };
 
-  compareItems(a, b) {
+  compareItems = (a, b) => {
     switch (this.state.order) {
       case orders.BREWERY:
         return a.brewery.toLowerCase() < b.brewery.toLowerCase() ? -1 : 1;
@@ -89,24 +97,24 @@ class TapList extends React.Component {
       default:
         return a.tap - b.tap;
     }
-  }
+  };
 
-  updateTitle(location) {
+  updateTitle = location => {
     this.setState({ title: titles[location] });
-  }
+  };
 
-  handleMenuClick() {
+  handleMenuClick = () => {
     this.setState({ menuOpen: !this.state.menuOpen });
-  }
+  };
 
-  handleFilterClick(event) {
+  handleFilterClick = event => {
     const target = event.target.innerHTML;
     if (target) this.setState({ filter: target });
-  }
+  };
 
-  handleOrderClick(order) {
+  handleOrderClick = order => {
     this.setState({ order });
-  }
+  };
 
   render() {
     if (!this.state.loading) {
@@ -118,7 +126,7 @@ class TapList extends React.Component {
           />
           <LocationMenu
             menuOpen={this.state.menuOpen}
-            fetchList={this.fetchList}
+            fetchList={this.getList}
             updateTitle={this.updateTitle}
             handleMenuClick={this.handleMenuClick}
           />
